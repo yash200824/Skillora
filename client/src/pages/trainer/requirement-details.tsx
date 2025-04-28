@@ -17,7 +17,8 @@ import { Building, MapPin, Calendar, Clock, Calendar as CalendarIcon, User, Chev
 import { format } from "date-fns";
 
 export default function RequirementDetailsPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id;
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,41 +26,21 @@ export default function RequirementDetailsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
+  console.log("Requirement details page loaded, ID:", id);
+  console.log("Current user:", user);
+
   // Fetch requirement details
   const { data: requirement, isLoading, error } = useQuery({
     queryKey: [`/api/requirements/${id}`],
-    queryFn: async ({ queryKey }) => {
-      const res = await fetch(queryKey[0], {
-        credentials: 'include', // Important to include credentials for cookies
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Failed to fetch requirement details');
-      }
-      
-      return res.json();
-    },
-    enabled: !!id,
+    // Using the default queryFn from queryClient.ts which already includes credentials
+    enabled: !!id && !!user,
+    retry: 1
   });
 
   // Check if user already applied
   const { data: applications } = useQuery({
     queryKey: ["/api/my-applications"],
-    queryFn: async ({ queryKey }) => {
-      const res = await fetch(queryKey[0], {
-        credentials: 'include', // Important to include credentials for cookies
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      
-      if (!res.ok) return [];
-      return res.json();
-    },
+    // Using the default queryFn from queryClient.ts which already includes credentials
     enabled: !!user && user.role === "trainer",
   });
 

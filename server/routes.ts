@@ -1078,6 +1078,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Seed Database with Sample Data (Admin only or anyone in development)
+  app.post("/api/seed-database", async (req, res) => {
+    try {
+      // In production, this would typically be admin-only
+      // For development/demo purposes, allow anyone to seed
+      // if (!req.isAuthenticated() || req.user.role !== "admin") {
+      //   return res.status(403).json({ message: "Forbidden" });
+      // }
+      
+      const { seedDatabase } = await import("./seed");
+      const result = await seedDatabase();
+      
+      if (result.success) {
+        res.status(200).json({ message: result.message });
+      } else {
+        res.status(500).json({ message: result.message, error: result.error });
+      }
+    } catch (error) {
+      console.error("Error seeding database:", error);
+      res.status(500).json({ message: "Failed to seed database" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

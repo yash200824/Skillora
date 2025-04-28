@@ -130,7 +130,7 @@ export default function RequirementDetailsPage() {
             Back to Opportunities
           </Button>
           
-          {isLoading ? (
+          {isLoading || !requirement ? (
             <>
               <Skeleton className="h-8 w-2/3 mb-2" />
               <Skeleton className="h-6 w-1/3 mb-6" />

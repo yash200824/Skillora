@@ -12,6 +12,7 @@ import { NotificationProvider } from "./context/notification-context";
 
 // Trainer Pages
 import TrainerOpportunities from "@/pages/trainer/opportunities";
+import RequirementDetailsPage from "@/pages/trainer/requirement-details";
 import TrainerApplications from "@/pages/trainer/applications";
 import TrainerContracts from "@/pages/trainer/contracts";
 import TrainerProfile from "@/pages/trainer/profile";
@@ -38,6 +39,7 @@ function Router() {
       
       {/* Trainer Routes */}
       <ProtectedRoute path="/opportunities" component={TrainerOpportunities} />
+      <ProtectedRoute path="/opportunities/:id" component={RequirementDetailsPage} />
       <ProtectedRoute path="/applications" component={TrainerApplications} />
       <ProtectedRoute path="/contracts" component={TrainerContracts} />
       <ProtectedRoute path="/profile" component={TrainerProfile} />

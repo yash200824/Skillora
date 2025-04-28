@@ -125,44 +125,50 @@ export default function OpportunityCard({ requirement }: OpportunityCardProps) {
             Posted {formatDistanceToNow(new Date(requirement.created_at), { addSuffix: true })}
           </span>
           
-          {user?.role === "trainer" && requirement.status === "open" && (
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm">Apply Now</Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[600px]">
-                <DialogHeader>
-                  <DialogTitle>Apply for {requirement.title}</DialogTitle>
-                </DialogHeader>
-                <div className="my-4">
-                  <h4 className="font-medium mb-2">Cover Letter</h4>
-                  <Textarea
-                    placeholder="Explain why you are suitable for this opportunity..."
-                    className="min-h-[150px]"
-                    value={coverLetter}
-                    onChange={(e) => setCoverLetter(e.target.value)}
-                  />
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant="outline">Cancel</Button>
-                  </DialogClose>
-                  <Button 
-                    onClick={handleApply} 
-                    disabled={applyMutation.isPending || !coverLetter.trim()}
-                  >
-                    {applyMutation.isPending ? "Submitting..." : "Submit Application"}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          )}
-          
-          {user?.role === "college" && (
-            <Link href={`/college/applications?requirementId=${requirement.id}`}>
-              <Button size="sm" variant="outline">View Applications</Button>
+          <div className="flex gap-2">
+            <Link href={`/opportunities/${requirement.id}`}>
+              <Button size="sm" variant="outline">View Details</Button>
             </Link>
-          )}
+            
+            {user?.role === "trainer" && requirement.status === "open" && (
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm">Apply Now</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle>Apply for {requirement.title}</DialogTitle>
+                  </DialogHeader>
+                  <div className="my-4">
+                    <h4 className="font-medium mb-2">Cover Letter</h4>
+                    <Textarea
+                      placeholder="Explain why you are suitable for this opportunity..."
+                      className="min-h-[150px]"
+                      value={coverLetter}
+                      onChange={(e) => setCoverLetter(e.target.value)}
+                    />
+                  </div>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+                    <Button 
+                      onClick={handleApply} 
+                      disabled={applyMutation.isPending || !coverLetter.trim()}
+                    >
+                      {applyMutation.isPending ? "Submitting..." : "Submit Application"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
+            
+            {user?.role === "college" && (
+              <Link href={`/college/applications?requirementId=${requirement.id}`}>
+                <Button size="sm" variant="outline">View Applications</Button>
+              </Link>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

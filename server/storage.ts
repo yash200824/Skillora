@@ -79,7 +79,9 @@ export class DatabaseStorage implements IStorage {
       conObject: {
         connectionString: process.env.DATABASE_URL,
       },
-      createTableIfMissing: true
+      tableName: 'session',
+      createTableIfMissing: true,
+      pruneSessionInterval: 60 * 15 // Prune expired sessions every 15 minutes
     });
   }
 

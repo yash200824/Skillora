@@ -104,20 +104,68 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/register", async (req, res, next) => {
-    const existingUser = await storage.getUserByUsername(req.body.username);
-    if (existingUser) {
-      return res.status(400).send("Username already exists");
+    console.log("Registration request received:", { 
+      username: req.body.username,
+      email: req.body.email,
+      role: req.body.role
+    });
+    
+    try {
+      // Check if username already exists
+      const existingUsername = await storage.getUserByUsername(req.body.username);
+      if (existingUsername) {
+        console.log(`Registration failed: Username ${req.body.username} already exists`);
+        return res.status(400).json({ message: "Username already exists" });
+      }
+      
+      // Check if email already exists
+      const existingEmail = await storage.getUserByEmail(req.body.email);
+      if (existingEmail) {
+        console.log(`Registration failed: Email ${req.body.email} already exists`);
+        return res.status(400).json({ message: "Email already exists" });
+      }
+      
+      // Validate required fields
+      const requiredFields = ['username', 'password', 'email', 'name', 'role'];
+      for (const field of requiredFields) {
+        if (!req.body[field]) {
+          console.log(`Registration failed: Missing required field ${field}`);
+          return res.status(400).json({ message: `Missing required field: ${field}` });
+        }
+      }
+      
+      // Create user with hashed password
+      const hashedPassword = await hashPassword(req.body.password);
+      console.log(`Password hashed successfully for ${req.body.username}`);
+      
+      const userData = {
+        ...req.body,
+        password: hashedPassword,
+        // Make sure skills is properly formatted as an array
+        skills: Array.isArray(req.body.skills) ? req.body.skills : 
+                req.body.skills ? [req.body.skills] : [],
+      };
+      
+      console.log(`Creating user in database: ${req.body.username}`);
+      const user = await storage.createUser(userData);
+      console.log(`User created successfully: ${user.id} (${user.username})`);
+      
+      // Log the user in automatically after registration
+      req.login(user, (err) => {
+        if (err) {
+          console.error("Error during login after registration:", err);
+          return next(err);
+        }
+        
+        console.log(`User logged in after registration: ${user.id}`);
+        // Return user data without password
+        const { password, ...userWithoutPassword } = user;
+        res.status(201).json(userWithoutPassword);
+      });
+    } catch (error) {
+      console.error("Error during registration:", error);
+      res.status(500).json({ message: "Registration failed due to server error" });
     }
-
-    const user = await storage.createUser({
-      ...req.body,
-      password: await hashPassword(req.body.password),
-    });
-
-    req.login(user, (err) => {
-      if (err) return next(err);
-      res.status(201).json(user);
-    });
   });
 
   app.post("/api/login", (req, res, next) => {

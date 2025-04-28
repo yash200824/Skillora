@@ -91,23 +91,51 @@ export default function AuthPage() {
 
   const onRegisterSubmit = async (data: RegisterFormValues) => {
     try {
-      await registerMutation.mutateAsync({
+      console.log("Attempting to register user:", data.username);
+      
+      const user = await registerMutation.mutateAsync({
         name: data.name,
         username: data.username,
         email: data.email,
         password: data.password,
         role: data.role,
         organization: data.role === "college" ? data.organization : undefined,
+        skills: data.role === "trainer" && data.skills ? data.skills.split(',').map(skill => skill.trim()) : undefined,
       });
+      
+      console.log("Registration successful for:", data.username);
+      
+      // Force a query refetch to ensure user state is up-to-date
+      await queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      
       toast({
         title: "Registration successful",
-        description: "Your account has been created successfully",
+        description: `Welcome, ${user.name}! Your account has been created successfully.`,
       });
+      
+      // Redirect to dashboard after successful registration
+      setTimeout(() => {
+        if (user) window.location.href = '/';
+      }, 1000);
     } catch (error) {
       console.error("Registration error:", error);
+      
+      // Extract error message
+      let errorMessage = "There was an error creating your account";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      // Check for common registration issues
+      if (errorMessage.includes("Username already exists")) {
+        errorMessage = "This username is already taken. Please choose another one.";
+      } else if (errorMessage.includes("Email already exists")) {
+        errorMessage = "This email is already registered. Please use another email or login.";
+      }
+      
       toast({
         title: "Registration failed",
-        description: "There was an error creating your account",
+        description: errorMessage,
         variant: "destructive",
       });
     }

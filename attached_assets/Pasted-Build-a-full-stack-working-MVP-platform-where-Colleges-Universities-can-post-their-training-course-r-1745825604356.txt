@@ -1,0 +1,210 @@
+Build a full-stack working MVP platform where Colleges/Universities can post their training/course requirements and Freelance Trainers/Vendors can apply, get selected, conduct the training sessions, and receive ratings and payment.
+
+The system must have the following features:
+
+🔵 1. Authentication Module
+Register/Login for:
+
+College Users
+
+Trainer Users
+
+Admin Users
+
+JWT-based authentication
+
+Password hashing with bcrypt
+
+Role-based access control (College, Trainer, Admin)
+
+🔵 2. User Dashboards
+College Dashboard:
+
+Post new Training Requirements
+
+View Applications
+
+Shortlist & Accept Trainers
+
+Manage Trainings
+
+Trainer Dashboard:
+
+Create/Update Profile
+
+Browse Open Trainings
+
+Apply for Trainings
+
+View Accepted Trainings
+
+Admin Dashboard:
+
+Approve or Reject Trainer Profiles
+
+Block/Unblock Users
+
+View Platform Statistics
+
+🔵 3. Training/Project Management
+College can Post Trainings (Title, Description, Skills Required)
+
+Trainers can Apply to Trainings
+
+College can Shortlist & Accept Trainers
+
+Status Management (Open, In Progress, Completed)
+
+🔵 4. Contract Management (MVP)
+Generate a simple contract once a trainer is accepted
+
+Include Course Title, Fee, Deliverables, Digital Acceptance
+
+Save contract acceptance date
+
+🔵 5. Reviews & Rating System
+After training completion:
+
+College rates Trainer
+
+Trainer rates College
+
+Rating from 1 to 5 stars with comments
+
+🔵 6. Payments (MVP Simulation)
+Manual Confirmation (no real gateway yet)
+
+"Mark as Paid" button after training completed
+
+Future upgrade ready for Stripe/Razorpay integration
+
+🔵 7. Notifications (MVP)
+In-app notifications when applications are received, shortlisted, or accepted
+
+Optional: Setup simple SMTP Email Alerts later
+
+🗂️ Folder Structure
+bash
+Copy
+Edit
+/frontend
+  /components
+  /pages
+  /services
+  /utils
+  tailwind.config.js
+  package.json
+
+/backend
+  /controllers
+  /models
+  /routes
+  /middlewares
+  /services
+  server.js
+  package.json
+
+/database
+  /migrations
+  /seeds
+  schema.sql
+
+/common
+  /contracts
+  /config
+🛢️ Database Tables (PostgreSQL)
+Users: (id, name, email, password, role [College, Trainer, Admin], bio, verified, created_at)
+
+TrainingRequirements: (id, title, description, posted_by, status [Open, Closed, Completed], created_at)
+
+Applications: (id, trainer_id, requirement_id, status [Applied, Shortlisted, Accepted, Rejected], created_at)
+
+Contracts: (id, trainer_id, college_id, course_id, terms, signed_at)
+
+Reviews: (id, given_by, given_to, rating, comment, created_at)
+
+🌐 API Endpoints
+Auth
+POST /api/register
+
+POST /api/login
+
+GET /api/profile
+
+PATCH /api/profile/update
+
+Colleges
+POST /api/requirements
+
+GET /api/requirements
+
+PATCH /api/requirements/:id
+
+DELETE /api/requirements/:id
+
+POST /api/requirements/:id/shortlist
+
+POST /api/requirements/:id/accept
+
+Trainers
+GET /api/opportunities
+
+POST /api/apply/:requirementId
+
+GET /api/my-applications
+
+POST /api/contract/sign
+
+Admin
+GET /api/admin/verify-trainer
+
+PATCH /api/admin/approve-trainer/:trainerId
+
+PATCH /api/admin/block-user/:userId
+
+Reviews
+POST /api/review
+
+GET /api/reviews/:userId
+
+⚙️ Tech Stack
+Frontend: React.js + TailwindCSS
+
+Backend: Node.js + Express.js
+
+Database: PostgreSQL
+
+Authentication: JWT + Bcrypt
+
+ORM: Sequelize.js or Prisma
+
+Hosting: Replit Deploy / Vercel
+
+📄 Basic ReadMe Instructions
+Install frontend and backend dependencies
+
+Setup environment variables (JWT_SECRET, DB_URL, etc.)
+
+Run migrations to set up tables
+
+Start backend server on port 5000
+
+Start frontend server on port 3000
+
+Connect both using Axios from frontend
+
+Deploy using Replit Deploy or Vercel
+
+🧠 Important Points for Replit AI
+Build backend and frontend separately first, then integrate.
+
+Add clear comments in the codebase for scalability.
+
+Keep styling minimal and clean for MVP.
+
+Prioritize working features over fancy UI initially.
+
+Make project ready for adding real payments, video calls, or AI recommendations later.
+
+🎯 Final Objective:
+Build a fully functional MVP of a Trainer–College Marketplace Platform that connects freelance trainers to colleges for academic training projects with full user management, project management, and rating system, ready for future scaling!

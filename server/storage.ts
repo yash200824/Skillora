@@ -22,6 +22,7 @@ import {
 import { db } from "./db";
 import { eq, and, inArray, not, desc, asc } from "drizzle-orm";
 import session from "express-session";
+import type { Store } from "express-session";
 import connectPg from "connect-pg-simple";
 
 const PostgresSessionStore = connectPg(session);
@@ -68,11 +69,11 @@ export interface IStorage {
   markNotificationAsRead(id: number): Promise<void>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: Store;
 }
 
 export class DatabaseStorage implements IStorage {
-  sessionStore: session.SessionStore;
+  sessionStore: Store;
   
   constructor() {
     this.sessionStore = new PostgresSessionStore({ 

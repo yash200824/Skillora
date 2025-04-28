@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useAuth } from "@/hooks/use-auth";
 import { Redirect } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -61,19 +62,28 @@ export default function AuthPage() {
 
   const onLoginSubmit = async (data: LoginFormValues) => {
     try {
-      await loginMutation.mutateAsync({
+      console.log("Attempting login for user:", data.username);
+      
+      const user = await loginMutation.mutateAsync({
         username: data.username,
         password: data.password,
       });
+      
+      console.log("Login successful for:", user.username);
+      
+      // Force a query refetch to ensure user state is up-to-date
+      await queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      
       toast({
         title: "Login successful",
-        description: "You have been successfully logged in",
+        description: `Welcome back, ${user.name}!`,
       });
     } catch (error) {
       console.error("Login error:", error);
+      
       toast({
         title: "Login failed",
-        description: "Invalid username or password",
+        description: error instanceof Error ? error.message : "Invalid username or password",
         variant: "destructive",
       });
     }

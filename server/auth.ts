@@ -29,16 +29,24 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
+  // Generate a random secret if one isn't provided
+  const SESSION_SECRET = process.env.SESSION_SECRET || 
+    require('crypto').randomBytes(32).toString('hex');
+  
+  console.log('Setting up session middleware with PostgreSQL store');
+  
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || 'trainer-college-platform-secret',
-    resave: true,
-    saveUninitialized: false,
-    rolling: true,
+    secret: SESSION_SECRET,
+    name: 'connect.sid', // Default name, being explicit
+    resave: false,       // Don't save session if unmodified
+    saveUninitialized: false, // Don't create session until something stored
+    rolling: true,       // Force cookie set on every response
     cookie: {
+      path: '/',         // Cookie valid for the entire site
       maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-      httpOnly: true,
+      httpOnly: true,    // Cookie not accessible via JS
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
+      sameSite: 'lax'    // Provides CSRF protection with some exceptions
     },
     store: storage.sessionStore,
   };
@@ -123,15 +131,22 @@ export function setupAuth(app: Express) {
 
   app.post("/api/logout", (req, res, next) => {
     if (!req.isAuthenticated()) {
+      console.log("Logout requested but no authenticated user found");
       return res.status(200).json({ message: "Not logged in" });
     }
     
-    console.log("Logging out user:", req.user?.id);
+    // Store user info for logging before logout
+    const userId = req.user?.id;
+    const username = req.user?.username;
+    console.log(`Logging out user: ${username} (ID: ${userId})`);
+    
     req.logout((err) => {
       if (err) {
-        console.error("Logout error:", err);
+        console.error("Passport logout error:", err);
         return next(err);
       }
+      
+      console.log(`Passport logout successful for user: ${username}`);
       
       req.session.destroy((sessionErr) => {
         if (sessionErr) {
@@ -139,8 +154,17 @@ export function setupAuth(app: Express) {
           return next(sessionErr);
         }
         
-        console.log("User logged out and session destroyed");
-        res.clearCookie('connect.sid');
+        console.log(`Session destroyed for user: ${username}`);
+        
+        // Clear the session cookie with proper options
+        res.clearCookie('connect.sid', { 
+          path: '/',
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax'
+        });
+        
+        console.log("Logout process completed successfully");
         res.status(200).json({ message: "Logged out successfully" });
       });
     });

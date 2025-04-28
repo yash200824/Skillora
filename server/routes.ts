@@ -130,23 +130,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Get single training requirement by ID
   app.get("/api/requirements/:id", async (req, res) => {
+    console.log("GET /api/requirements/:id - Auth Status:", req.isAuthenticated(), "User:", req.user ? { id: req.user.id, username: req.user.username, role: req.user.role } : "None");
+    
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     try {
-      const requirement = await storage.getTrainingRequirementById(parseInt(req.params.id));
+      const reqId = parseInt(req.params.id);
+      console.log("Fetching requirement with ID:", reqId);
+      
+      const requirement = await storage.getTrainingRequirementById(reqId);
+      console.log("Requirement found:", requirement ? "Yes" : "No");
+      
       if (!requirement) {
         return res.status(404).json({ message: "Requirement not found" });
       }
 
       const poster = await storage.getUser(requirement.posted_by);
+      console.log("Poster found:", poster ? "Yes" : "No");
       
-      res.json({
+      const result = {
         ...requirement,
         poster: poster ? { id: poster.id, name: poster.name, organization: poster.organization } : null
-      });
+      };
+      
+      console.log("Sending requirement data with poster info");
+      res.json(result);
     } catch (error) {
+      console.error("Error fetching requirement:", error);
       res.status(500).json({ message: "Failed to fetch requirement" });
     }
   });

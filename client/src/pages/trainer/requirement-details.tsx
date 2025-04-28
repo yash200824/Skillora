@@ -32,7 +32,29 @@ export default function RequirementDetailsPage() {
   // Fetch requirement details
   const { data: requirement, isLoading, error } = useQuery({
     queryKey: [`/api/requirements/${id}`],
-    // Using the default queryFn from queryClient.ts which already includes credentials
+    queryFn: async ({ queryKey }) => {
+      console.log("Making API request to:", queryKey[0]);
+      try {
+        const res = await fetch(queryKey[0], {
+          credentials: 'include',
+        });
+        
+        console.log("API response status:", res.status);
+        
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({ message: `HTTP error ${res.status}` }));
+          console.error("API request failed:", errorData);
+          throw new Error(errorData.message || 'Failed to fetch requirement details');
+        }
+        
+        const data = await res.json();
+        console.log("API response data:", data);
+        return data;
+      } catch (err) {
+        console.error("API request error:", err);
+        throw err;
+      }
+    },
     enabled: !!id && !!user,
     retry: 1
   });

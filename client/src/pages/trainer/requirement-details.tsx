@@ -136,8 +136,8 @@ export default function RequirementDetailsPage() {
               <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
                 <h1 className="text-2xl font-bold text-neutral-800">{requirement.title}</h1>
                 <Badge 
-                  variant={requirement.status === "open" ? "success" : "secondary"} 
-                  className="mt-2 md:mt-0 capitalize self-start md:self-auto"
+                  variant={requirement.status === "open" ? "default" : "secondary"} 
+                  className={`mt-2 md:mt-0 capitalize self-start md:self-auto ${requirement.status === "open" ? "bg-green-100 text-green-800 hover:bg-green-200" : ""}`}
                 >
                   {requirement.status}
                 </Badge>

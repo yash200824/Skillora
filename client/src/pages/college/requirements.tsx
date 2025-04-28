@@ -74,14 +74,14 @@ export default function CollegeRequirements() {
           <div className="flex justify-between items-start">
             <h3 className="text-base font-semibold text-neutral-800">{requirement.title}</h3>
             <Badge
-              variant={
-                requirement.status === "open"
-                  ? "success"
+              variant="secondary"
+              className={`capitalize ${
+                requirement.status === "open" 
+                  ? "bg-green-100 text-green-800 hover:bg-green-200" 
                   : requirement.status === "in_progress"
-                  ? "warning"
-                  : "secondary"
-              }
-              className="capitalize"
+                  ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
+                  : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+              }`}
             >
               {requirement.status.replace("_", " ")}
             </Badge>
@@ -126,15 +126,17 @@ export default function CollegeRequirements() {
           
           {requirement.status === "open" && (
             <CircleAlert>
-              <OctagonAlert asChild>
-                <Button size="sm" variant="destructive">Delete</Button>
-              </OctagonAlert>
+              <Button size="sm" variant="destructive">
+                <OctagonAlert className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
               <CircleHelp>
                 <PanelTopOpen>
                   <PanelTopDashed>Are you sure?</PanelTopDashed>
-                  <AlertTriangle>
-                    This action cannot be undone. This will permanently delete the requirement.
-                  </AlertTriangle>
+                  <div className="mt-2">
+                    <AlertTriangle className="h-4 w-4 text-destructive mr-2 inline-block" />
+                    <span>This action cannot be undone. This will permanently delete the requirement.</span>
+                  </div>
                 </PanelTopOpen>
                 <PanelTopClose>
                   <X>Cancel</X>

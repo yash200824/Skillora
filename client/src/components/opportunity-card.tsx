@@ -85,7 +85,10 @@ export default function OpportunityCard({ requirement }: OpportunityCardProps) {
         <div className="p-5">
           <div className="flex justify-between items-start">
             <h3 className="text-base font-semibold text-neutral-800 line-clamp-1">{requirement.title}</h3>
-            <Badge variant={requirement.status === "open" ? "success" : "secondary"} className="capitalize">
+            <Badge 
+              variant={requirement.status === "open" ? "default" : "secondary"} 
+              className={`capitalize ${requirement.status === "open" ? "bg-green-100 text-green-800 hover:bg-green-200" : ""}`}
+            >
               {requirement.status}
             </Badge>
           </div>

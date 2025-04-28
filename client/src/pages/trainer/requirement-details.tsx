@@ -20,18 +20,24 @@ export default function RequirementDetailsPage() {
   const params = useParams();
   const id = params?.id;
   const { user } = useAuth();
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  console.log("Requirement details page loaded, ID:", id);
+  // Extract the ID from the URL directly if params.id is null
+  const pathSegments = location.split('/');
+  const requirementId = id || pathSegments[pathSegments.length - 1];
+  
+  console.log("Requirement details page loaded, ID from params:", id);
+  console.log("Requirement details page URL:", location);
+  console.log("Extracted requirementId:", requirementId);
   console.log("Current user:", user);
 
   // Fetch requirement details
   const { data: requirement, isLoading, error } = useQuery({
-    queryKey: [`/api/requirements/${id}`],
+    queryKey: [`/api/requirements/${requirementId}`],
     queryFn: async ({ queryKey }) => {
       console.log("Making API request to:", queryKey[0]);
       try {
@@ -55,7 +61,7 @@ export default function RequirementDetailsPage() {
         throw err;
       }
     },
-    enabled: !!id && !!user,
+    enabled: !!requirementId && !!user,
     retry: 1
   });
 
@@ -66,11 +72,11 @@ export default function RequirementDetailsPage() {
     enabled: !!user && user.role === "trainer",
   });
 
-  const hasApplied = Array.isArray(applications) && applications.some((app: any) => app.requirement_id === Number(id));
+  const hasApplied = Array.isArray(applications) && applications.some((app: any) => app.requirement_id === Number(requirementId));
 
   const applyMutation = useMutation({
     mutationFn: async (data: { cover_letter: string }) => {
-      const res = await apiRequest("POST", `/api/apply/${id}`, data);
+      const res = await apiRequest("POST", `/api/apply/${requirementId}`, data);
       return await res.json();
     },
     onSuccess: () => {

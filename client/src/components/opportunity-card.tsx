@@ -129,9 +129,16 @@ export default function OpportunityCard({ requirement }: OpportunityCardProps) {
           </span>
           
           <div className="flex gap-2">
-            <Link to={`/opportunities/${requirement.id}`}>
-              <Button size="sm" variant="outline">View Details</Button>
-            </Link>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => {
+                console.log("Navigating to requirement details, ID:", requirement.id);
+                navigate(`/opportunities/${requirement.id}`);
+              }}
+            >
+              View Details
+            </Button>
             
             {user?.role === "trainer" && requirement.status === "open" && (
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

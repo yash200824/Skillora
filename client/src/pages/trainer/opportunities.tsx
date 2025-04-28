@@ -20,7 +20,7 @@ import {
 export default function TrainerOpportunities() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedMode, setSelectedMode] = useState<string>("");
+  const [selectedMode, setSelectedMode] = useState<string>("all");
   const [onlyOpenRequirements, setOnlyOpenRequirements] = useState(true);
 
   // Fetch all requirements
@@ -36,8 +36,8 @@ export default function TrainerOpportunities() {
           return false;
         }
         
-        // Filter by mode if selected
-        if (selectedMode && req.mode !== selectedMode) {
+        // Filter by mode if selected (and not "all")
+        if (selectedMode && selectedMode !== "all" && req.mode !== selectedMode) {
           return false;
         }
         
@@ -93,7 +93,7 @@ export default function TrainerOpportunities() {
                   <SelectValue placeholder="Filter by mode" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Modes</SelectItem>
+                  <SelectItem value="all">All Modes</SelectItem>
                   {uniqueModes.map((mode) => (
                     <SelectItem key={mode} value={mode}>
                       {mode}
@@ -139,12 +139,12 @@ export default function TrainerOpportunities() {
               </Badge>
             )}
             
-            {selectedMode && (
+            {selectedMode && selectedMode !== "all" && (
               <Badge variant="secondary" className="ml-2">
                 Mode: {selectedMode}
                 <button
                   className="ml-1 hover:text-neutral-900"
-                  onClick={() => setSelectedMode("")}
+                  onClick={() => setSelectedMode("all")}
                 >
                   ×
                 </button>
@@ -168,7 +168,7 @@ export default function TrainerOpportunities() {
               <Search className="h-12 w-12 mx-auto text-neutral-300" />
               <h3 className="mt-4 text-lg font-medium text-neutral-800">No opportunities found</h3>
               <p className="mt-2 text-neutral-600">
-                {searchQuery || selectedMode
+                {searchQuery || (selectedMode && selectedMode !== "all")
                   ? "Try adjusting your filters or search query"
                   : "There are no open opportunities currently available"}
               </p>

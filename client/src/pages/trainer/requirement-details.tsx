@@ -28,14 +28,24 @@ export default function RequirementDetailsPage() {
   // Fetch requirement details
   const { data: requirement, isLoading, error } = useQuery({
     queryKey: [`/api/requirements/${id}`],
+    queryFn: ({ queryKey }) => fetch(queryKey[0]).then(res => {
+      if (!res.ok) throw new Error('Failed to fetch requirement details');
+      return res.json();
+    }),
+    enabled: !!id,
   });
 
   // Check if user already applied
   const { data: applications } = useQuery({
     queryKey: ["/api/my-applications"],
+    queryFn: ({ queryKey }) => fetch(queryKey[0]).then(res => {
+      if (!res.ok) return [];
+      return res.json();
+    }),
+    enabled: !!user && user.role === "trainer",
   });
 
-  const hasApplied = applications?.some((app) => app.requirement_id === Number(id));
+  const hasApplied = Array.isArray(applications) && applications.some((app: any) => app.requirement_id === Number(id));
 
   const applyMutation = useMutation({
     mutationFn: async (data: { cover_letter: string }) => {

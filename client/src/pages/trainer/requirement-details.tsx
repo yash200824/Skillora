@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useParams, useLocation } from "wouter";
+import { useParams, useLocation, Link } from "wouter";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 import MobileNav from "@/components/layout/mobile-nav";
@@ -183,7 +183,12 @@ export default function RequirementDetailsPage() {
               <div className="flex items-center text-neutral-600 mb-6">
                 <Building className="h-4 w-4 mr-2" />
                 <span>
-                  {requirement.poster?.name || "Institution"}
+                  <Link 
+                    href={`/college/${requirement.poster?.id}`} 
+                    className="text-primary hover:underline"
+                  >
+                    {requirement.poster?.name || "Institution"}
+                  </Link>
                   {requirement.poster?.organization && ` • ${requirement.poster.organization}`}
                 </span>
               </div>
@@ -254,10 +259,22 @@ export default function RequirementDetailsPage() {
                       {requirement.poster?.name.charAt(0) || "C"}
                     </div>
                     <div className="ml-4">
-                      <h3 className="font-medium text-neutral-800">{requirement.poster?.name || "Institution"}</h3>
+                      <Link 
+                        href={`/college/${requirement.poster?.id}`} 
+                        className="block font-medium text-neutral-800 hover:text-primary"
+                      >
+                        {requirement.poster?.name || "Institution"}
+                      </Link>
                       {requirement.poster?.organization && (
                         <p className="text-neutral-600">{requirement.poster.organization}</p>
                       )}
+                      <Button 
+                        variant="link" 
+                        className="h-auto p-0 text-primary text-sm"
+                        onClick={() => navigate(`/college/${requirement.poster?.id}`)}
+                      >
+                        View college details →
+                      </Button>
                     </div>
                   </div>
                 </CardContent>

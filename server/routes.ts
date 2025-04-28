@@ -56,6 +56,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     res.json(req.user);
   });
+  
+  // Get user by ID (for college and trainer profile pages)
+  app.get("/api/users/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    try {
+      const userId = parseInt(req.params.id);
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Remove sensitive information
+      const { password, ...safeUser } = user;
+      res.json(safeUser);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user details" });
+    }
+  });
+  
+  // Get all requirements from a specific college
+  app.get("/api/college/:id/requirements", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    try {
+      const collegeId = parseInt(req.params.id);
+      const requirements = await storage.getTrainingRequirementsByCollege(collegeId);
+      
+      res.json(requirements);
+    } catch (error) {
+      console.error("Error fetching college requirements:", error);
+      res.status(500).json({ message: "Failed to fetch college requirements" });
+    }
+  });
+  
+  // Get all contracts for a specific trainer
+  app.get("/api/trainer/:id/contracts", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    try {
+      const trainerId = parseInt(req.params.id);
+      const trainerContracts = await storage.getContractsByTrainer(trainerId);
+      
+      // Get related requirements
+      const requirementIds = [...new Set(trainerContracts.map(contract => contract.requirement_id))];
+      const requirements = await db
+        .select()
+        .from(trainingRequirements)
+        .where(inArray(trainingRequirements.id, requirementIds));
+      
+      // Get colleges
+      const collegeIds = [...new Set(trainerContracts.map(contract => contract.college_id))];
+      const colleges = await db
+        .select()
+        .from(users)
+        .where(inArray(users.id, collegeIds));
+      
+      const result = trainerContracts.map(contract => {
+        const requirement = requirements.find(req => req.id === contract.requirement_id);
+        const college = colleges.find(col => col.id === contract.college_id);
+        
+        return {
+          ...contract,
+          requirement: requirement || null,
+          college: college ? { 
+            id: college.id, 
+            name: college.name, 
+            organization: college.organization,
+            email: college.email
+          } : null
+        };
+      });
+      
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching trainer contracts:", error);
+      res.status(500).json({ message: "Failed to fetch trainer contracts" });
+    }
+  });
 
   // Update user profile
   app.patch("/api/profile/update", async (req, res) => {
@@ -785,6 +872,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ averageRating: avgRating });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch average rating" });
+    }
+  });
+
+  // Get reviews for a specific user (for college and trainer profile pages)
+  app.get("/api/reviews/user/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    try {
+      const userId = parseInt(req.params.id);
+      const userReviews = await storage.getReviewsByUser(userId);
+      
+      // Get reviewer information
+      const reviewerIds = [...new Set(userReviews.map(review => review.given_by))];
+      const reviewers = await db
+        .select()
+        .from(users)
+        .where(inArray(users.id, reviewerIds));
+      
+      const result = userReviews.map(review => {
+        const reviewer = reviewers.find(r => r.id === review.given_by);
+        return {
+          ...review,
+          reviewer: reviewer ? {
+            id: reviewer.id,
+            name: reviewer.name,
+            organization: reviewer.organization,
+            role: reviewer.role
+          } : null
+        };
+      });
+      
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      res.status(500).json({ message: "Failed to fetch reviews" });
     }
   });
 

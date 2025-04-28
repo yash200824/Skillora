@@ -22,6 +22,8 @@ import CollegeRequirements from "@/pages/college/requirements";
 import CollegeApplications from "@/pages/college/applications";
 import CollegeCreateRequirement from "@/pages/college/create-requirement";
 import CollegeContracts from "@/pages/college/contracts";
+import CollegeDetailsPage from "@/pages/college-details";
+import TrainerDetailsPage from "@/pages/trainer-details";
 
 // Admin Pages
 import AdminDashboard from "@/pages/admin/dashboard";
@@ -49,6 +51,10 @@ function Router() {
       <ProtectedRoute path="/college/applications" component={CollegeApplications} />
       <ProtectedRoute path="/create-requirement" component={CollegeCreateRequirement} />
       <ProtectedRoute path="/college/contracts" component={CollegeContracts} />
+      
+      {/* Shared Routes */}
+      <ProtectedRoute path="/college/:id" component={CollegeDetailsPage} />
+      <ProtectedRoute path="/trainer/:id" component={TrainerDetailsPage} />
       
       {/* Admin Routes */}
       <ProtectedRoute path="/admin" component={AdminDashboard} />

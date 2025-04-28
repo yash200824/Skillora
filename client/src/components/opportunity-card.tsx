@@ -129,7 +129,7 @@ export default function OpportunityCard({ requirement }: OpportunityCardProps) {
           </span>
           
           <div className="flex gap-2">
-            <Link href={`/opportunities/${requirement.id}`}>
+            <Link to={`/opportunities/${requirement.id}`}>
               <Button size="sm" variant="outline">View Details</Button>
             </Link>
             
@@ -167,7 +167,7 @@ export default function OpportunityCard({ requirement }: OpportunityCardProps) {
             )}
             
             {user?.role === "college" && (
-              <Link href={`/college/applications?requirementId=${requirement.id}`}>
+              <Link to={`/college/applications?requirementId=${requirement.id}`}>
                 <Button size="sm" variant="outline">View Applications</Button>
               </Link>
             )}

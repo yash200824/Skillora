@@ -31,7 +31,7 @@ async function comparePasswords(supplied: string, stored: string) {
 export function setupAuth(app: Express) {
   // Generate a random secret if one isn't provided
   const SESSION_SECRET = process.env.SESSION_SECRET || 
-    require('crypto').randomBytes(32).toString('hex');
+    randomBytes(32).toString('hex');
   
   console.log('Setting up session middleware with PostgreSQL store');
   
